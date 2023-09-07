@@ -8,6 +8,7 @@ import {
   onBeforeUnmount,
   onMounted,
   reactive,
+  ref,
 } from 'vue'
 import { DraggableCore, props as draggableCoreProps } from './DraggableCore'
 import { createCSSTransform, createSVGTransform } from './utils/domFns'
@@ -42,6 +43,8 @@ export type DraggableProps = ExtractPropTypes<typeof draggableProps>
 export const Draggable = defineComponent({
   props: draggableProps,
   setup(props, { slots }) {
+    const nodeRef = ref<HTMLElement | null>(null)
+
     const state = reactive<DraggableState>({
       // Whether or not we are currently dragging.
       dragging: false,
@@ -109,7 +112,7 @@ export const Draggable = defineComponent({
         newState.y += state.slackY
 
         // Get bound position. This will ceil/floor the x and y within the boundaries.
-        const [newStateX, newStateY] = getBoundPosition(props, inst, newState.x, newState.y)
+        const [newStateX, newStateY] = getBoundPosition(props, nodeRef.value!, newState.x, newState.y)
         newState.x = newStateX
         newState.y = newStateY
 
@@ -217,6 +220,7 @@ export const Draggable = defineComponent({
           class: className,
           style: style,
           transform: svgTransform,
+          ref: nodeRef,
         },
         slots
       )

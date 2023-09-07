@@ -6,7 +6,8 @@
   "author": "liuyang0826",
   "license": "MIT",
   "dependencies": {
-    "@liuyang0826/vue-draggable": "workspace:*"
+    "@liuyang0826/vue-draggable": "workspace:*",
+    "@liuyang0826/vue-resizable": "workspace:*"
   },
   "devDependencies": {
     "@liuyang0826/eslint-config": "^0.0.2",

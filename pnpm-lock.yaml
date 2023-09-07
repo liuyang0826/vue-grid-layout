@@ -7,6 +7,9 @@ importers:
       '@liuyang0826/vue-draggable':
         specifier: workspace:*
         version: link:packages/vue-draggable
+      '@liuyang0826/vue-resizable':
+        specifier: workspace:*
+        version: link:packages/vue-resizable
     devDependencies:
       '@liuyang0826/eslint-config':
         specifier: ^0.0.2
@@ -25,6 +28,8 @@ importers:
         version: 3.3.4
 
   packages/vue-draggable: {}
+
+  packages/vue-resizable: {}
 
   playground:
     devDependencies:

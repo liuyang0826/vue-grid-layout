@@ -5,19 +5,13 @@ import type { DraggableCoreProps, DraggableCoreState } from '../DraggableCore'
 import { getTouch, innerWidth, innerHeight, offsetXYFromParent, outerWidth, outerHeight } from './domFns'
 import { isNum, int } from './shims'
 
-export function getBoundPosition(
-  props: DraggableProps,
-  inst: ComponentInternalInstance,
-  x: number,
-  y: number
-): [number, number] {
+export function getBoundPosition(props: DraggableProps, node: HTMLElement, x: number, y: number): [number, number] {
   // If no bounds, short-circuit and move on
   if (!props.bounds) return [x, y]
 
   // Clone new bounds
   let { bounds } = props
   bounds = typeof bounds === 'string' ? bounds : { ...bounds }
-  const node = findDOMNode(inst)
 
   if (typeof bounds === 'string') {
     const { ownerDocument } = node
@@ -87,12 +81,11 @@ export function canDragY(props: DraggableProps): boolean {
 export function getControlPosition(
   e: MouseTouchEvent,
   touchIdentifier: number | null | undefined,
-  inst: ComponentInternalInstance
+  props: DraggableCoreProps,
+  node: HTMLElement
 ): ControlPosition | null {
   const touchObj = typeof touchIdentifier === 'number' ? getTouch(e, touchIdentifier) : null
   if (typeof touchIdentifier === 'number' && !touchObj) return null // not the right touch
-  const node = findDOMNode(inst)
-  const props = inst.props as DraggableCoreProps
   // User can provide an offsetParent if desired.
   const offsetParent = props.offsetParent || node.offsetParent || node.ownerDocument.body
 
@@ -100,14 +93,8 @@ export function getControlPosition(
 }
 
 // Create an data object exposed by <DraggableCore>'s events
-export function createCoreData(
-  inst: ComponentInternalInstance,
-  state: DraggableCoreState,
-  x: number,
-  y: number
-): DraggableData {
+export function createCoreData(node: HTMLElement, state: DraggableCoreState, x: number, y: number): DraggableData {
   const isStart = !isNum(state.lastX)
-  const node = findDOMNode(inst)
 
   if (isStart) {
     // If this is our first move, use the x and y as last coords.

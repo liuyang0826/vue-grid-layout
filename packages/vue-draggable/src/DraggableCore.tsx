@@ -1,8 +1,8 @@
-import { defineComponent, getCurrentInstance, h, onMounted, reactive, Text } from 'vue'
-import type { ComponentInternalInstance, ExtractPropTypes, PropType, Ref } from 'vue'
+import { defineComponent, h, reactive, ref, Text, watch, withDirectives } from 'vue'
+import type { DraggableEventHandler, EventHandler, MouseTouchEvent } from './utils/types'
+import type { ExtractPropTypes, PropType } from 'vue'
 import { addEvent, getTouchIdentifier, matchesSelectorAndParentsTo, removeEvent } from './utils/domFns'
 import { createCoreData, getControlPosition, snapToGrid } from './utils/positionFns'
-import { DraggableEventHandler, EventHandler, MouseTouchEvent } from './utils/types'
 import { appendEvents, getFirstSlotVNode } from './utils/vue'
 
 const eventsFor = {
@@ -45,7 +45,6 @@ export const props = {
   grid: Array as PropType<number[]>,
   handle: String as PropType<string>,
   cancel: String as PropType<string>,
-  nodeRef: Object as PropType<Ref<HTMLElement>>,
   onStart: Function as PropType<DraggableEventHandler>,
   onDrag: Function as PropType<DraggableEventHandler>,
   onStop: Function as PropType<DraggableEventHandler>,
@@ -58,6 +57,8 @@ export type DraggableCoreProps = ExtractPropTypes<typeof props>
 export const DraggableCore = defineComponent({
   props: props,
   setup(props, { slots }) {
+    const nodeRef = ref<HTMLElement | null>(null)
+
     const state = reactive<DraggableCoreState>({
       dragging: false,
       lastX: NaN,
@@ -65,21 +66,10 @@ export const DraggableCore = defineComponent({
       touchIdentifier: null,
     })
 
-    let inst: ComponentInternalInstance
-
-    onMounted(() => {
-      inst = getCurrentInstance() as ComponentInternalInstance
-
-      const thisNode = findDOMNode()
-
-      if (thisNode) {
-        addEvent(thisNode, eventsFor.touch.start, onTouchStart, { passive: false })
-      }
+    watch(nodeRef, (node) => {
+      if (!node) return
+      addEvent(node, eventsFor.touch.start, onTouchStart, { passive: false })
     })
-
-    const findDOMNode = (): HTMLElement => {
-      return props?.nodeRef ? props?.nodeRef?.value : (inst?.vnode.el as HTMLElement)
-    }
 
     const handleDragStart: EventHandler<MouseTouchEvent> = (e) => {
       // Make it possible to attach event handlers on top of this one.
@@ -89,7 +79,7 @@ export const DraggableCore = defineComponent({
       if (!props.allowAnyClick && typeof e.button === 'number' && e.button !== 0) return false
 
       // Get nodes. Be sure to grab relative document (could be iframed)
-      const thisNode = findDOMNode()
+      const thisNode = nodeRef.value
 
       if (!thisNode || !thisNode.ownerDocument || !thisNode.ownerDocument.body) {
         throw new Error('<DraggableCore> not mounted on DragStart!')
@@ -118,12 +108,12 @@ export const DraggableCore = defineComponent({
       state.touchIdentifier = touchIdentifier
 
       // Get the current drag point from the event. This is used as the offset.
-      const position = getControlPosition(e, touchIdentifier, inst)
+      const position = getControlPosition(e, touchIdentifier, props, nodeRef.value!)
       if (position === null) return // not possible but satisfies flow
       const { x, y } = position
 
       // Create an event object with all the data parents need to make a decision here.
-      const coreEvent = createCoreData(inst, state, x, y)
+      const coreEvent = createCoreData(nodeRef.value!, state, x, y)
 
       const shouldUpdate = props.onStart?.(e, coreEvent)
       if (shouldUpdate === false) return
@@ -145,7 +135,7 @@ export const DraggableCore = defineComponent({
     const handleDrag: EventHandler<MouseTouchEvent> = (e) => {
       e.preventDefault()
       // Get the current drag point from the event. This is used as the offset.
-      const position = getControlPosition(e, state.touchIdentifier, inst)
+      const position = getControlPosition(e, state.touchIdentifier, props, nodeRef.value!)
       if (position === null) return
       let { x, y } = position
 
@@ -159,7 +149,7 @@ export const DraggableCore = defineComponent({
         ;(x = state.lastX + deltaX), (y = state.lastY + deltaY)
       }
 
-      const coreEvent = createCoreData(inst, state, x, y)
+      const coreEvent = createCoreData(nodeRef.value!, state, x, y)
 
       // Call event handler. If it returns explicit false, trigger end.
       const shouldUpdate = props.onDrag?.(e, coreEvent)
@@ -175,7 +165,7 @@ export const DraggableCore = defineComponent({
     const handleDragStop: EventHandler<MouseTouchEvent> = (e) => {
       if (!state.dragging) return
 
-      const position = getControlPosition(e, state.touchIdentifier, inst)
+      const position = getControlPosition(e, state.touchIdentifier, props, nodeRef.value!)
       if (position === null) return
       let { x, y } = position
 
@@ -190,13 +180,13 @@ export const DraggableCore = defineComponent({
         y = state.lastY + deltaY
       }
 
-      const coreEvent = createCoreData(inst, state, x, y)
+      const coreEvent = createCoreData(nodeRef.value!, state, x, y)
 
       // Call event handler
       const shouldContinue = props.onStop?.(e, coreEvent)
       if (shouldContinue === false) return false
 
-      const thisNode = findDOMNode()
+      const thisNode = nodeRef.value
 
       // Reset the el.
       state.dragging = false
@@ -242,6 +232,17 @@ export const DraggableCore = defineComponent({
 
       if (defaultNode) {
         defaultNode = defaultNode.type === Text ? h('span', [defaultNode]) : defaultNode
+
+        defaultNode = withDirectives(defaultNode, [
+          [
+            {
+              mounted: (el) => (nodeRef.value = el),
+              updated: (el) => (nodeRef.value = el),
+              unmounted: () => (nodeRef.value = null),
+            },
+          ],
+        ])
+
         appendEvents(defaultNode, 'onMousedown', onMouseDown)
         appendEvents(defaultNode, 'onMouseup', onMouseUp)
         appendEvents(defaultNode, 'onTouchend', onTouchEnd)
