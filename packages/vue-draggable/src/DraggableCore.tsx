@@ -1,9 +1,9 @@
 import { defineComponent, h, reactive, ref, Text, watch, withDirectives } from 'vue'
+import { appendEvents, getFirstSlotVNode, patchFirstSlotVNode } from 'shared'
 import type { DraggableEventHandler, EventHandler, MouseTouchEvent } from './utils/types'
 import type { ExtractPropTypes, PropType } from 'vue'
 import { addEvent, getTouchIdentifier, matchesSelectorAndParentsTo, removeEvent } from './utils/domFns'
 import { createCoreData, getControlPosition, snapToGrid } from './utils/positionFns'
-import { appendEvents, getFirstSlotVNode } from './utils/vue'
 
 const eventsFor = {
   touch: {
@@ -49,7 +49,7 @@ export const props = {
   onDrag: Function as PropType<DraggableEventHandler>,
   onStop: Function as PropType<DraggableEventHandler>,
   onMouseDown: Function as PropType<DraggableEventHandler>,
-  scale: { tyoe: Number as PropType<number>, default: 1 },
+  scale: { type: Number as PropType<number>, default: 1 },
 }
 
 export type DraggableCoreProps = ExtractPropTypes<typeof props>
@@ -229,10 +229,9 @@ export const DraggableCore = defineComponent({
 
     return () => {
       let defaultNode = getFirstSlotVNode(slots)
+      defaultNode = defaultNode?.type === Text ? h('div', defaultNode.props, [defaultNode]) : defaultNode
 
-      if (defaultNode) {
-        defaultNode = defaultNode.type === Text ? h('span', [defaultNode]) : defaultNode
-
+      patchFirstSlotVNode(defaultNode, (defaultNode) => {
         defaultNode = withDirectives(defaultNode, [
           [
             {
@@ -246,7 +245,7 @@ export const DraggableCore = defineComponent({
         appendEvents(defaultNode, 'onMousedown', onMouseDown)
         appendEvents(defaultNode, 'onMouseup', onMouseUp)
         appendEvents(defaultNode, 'onTouchend', onTouchEnd)
-      }
+      })
 
       return defaultNode
     }

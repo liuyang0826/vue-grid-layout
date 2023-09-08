@@ -210,20 +210,22 @@ export const Draggable = defineComponent({
         },
       ]
 
-      return h(
-        DraggableCore,
-        {
-          ...draggableCoreProps,
-          onStart: onDragStart,
-          onDrag: onDrag,
-          onStop: onDragStop,
-          class: className,
-          style: style,
-          transform: svgTransform,
-          ref: nodeRef,
-        },
-        slots
-      )
+      return [
+        h(
+          DraggableCore,
+          {
+            ...draggableCoreProps,
+            onStart: onDragStart,
+            onDrag: onDrag,
+            onStop: onDragStop,
+            class: className,
+            style: style,
+            transform: svgTransform,
+            ref: nodeRef,
+          },
+          slots
+        ),
+      ]
     }
   },
 })

@@ -1,4 +1,5 @@
 import { defineComponent, nextTick, reactive } from 'vue'
+import { getFirstSlotVNode, patchFirstSlotVNode } from 'shared'
 import { Resizable } from './Resizable'
 import { ResizeCallbackData, resizableProps } from './propTypes'
 
@@ -14,12 +15,9 @@ export const ResizableBox = defineComponent({
 
     const onResize = (e: MouseEvent, data: ResizeCallbackData) => {
       const { size } = data
-
       Object.assign(state, size)
 
       if (props.onResize) {
-        Object.assign(state, size)
-
         nextTick(() => {
           props.onResize?.(e, data)
         })
@@ -41,12 +39,21 @@ export const ResizableBox = defineComponent({
         transformScale,
       } = props
 
+      const defaultNode = getFirstSlotVNode(slots)
+
+      patchFirstSlotVNode(defaultNode, (node) => {
+        const props = node.props || (node.props = {})
+        props.style = [{ width: `${state.width}px`, height: `${state.height}px` }].concat(props.style)
+        props.class = [props.class, 'box'].filter(Boolean).join(' ')
+      })
+
       return (
         <Resizable
           axis={axis}
           draggableOpts={draggableOpts}
           handle={handle}
           handleSize={handleSize}
+          width={state.width}
           height={state.height}
           lockAspectRatio={lockAspectRatio}
           maxConstraints={maxConstraints}
@@ -56,9 +63,8 @@ export const ResizableBox = defineComponent({
           onResizeStop={onResizeStop}
           resizeHandles={resizeHandles}
           transformScale={transformScale}
-          width={state.width}
         >
-          <div style={{ width: `${state.width}px`, height: `${state.height}px` }}>{slots.default?.()}</div>
+          {{ default: () => defaultNode }}
         </Resizable>
       )
     }

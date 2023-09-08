@@ -1,9 +1,9 @@
-import { defineComponent } from 'vue'
+import { defineComponent, h, Text } from 'vue'
 import { DraggableCore } from '@liuyang0826/vue-draggable'
+import { getFirstSlotVNode, patchFirstSlotVNode } from 'shared'
 import type { DragCallbackData, ResizeHandleAxis } from './propTypes'
 import type { VNode } from 'vue'
 import { resizableProps } from './propTypes'
-import { getFirstSlotVNode } from './utils/vue'
 
 export const Resizable = defineComponent({
   props: resizableProps,
@@ -133,7 +133,7 @@ export const Resizable = defineComponent({
 
       // No handle provided, make the default
       if (!handle) {
-        return <span class={`react-resizable-handle react-resizable-handle-${handleAxis}`} />
+        return <span class={`vue-resizable-handle vue-resizable-handle-${handleAxis}`} />
       }
 
       return handle(handleAxis)
@@ -141,14 +141,16 @@ export const Resizable = defineComponent({
 
     return () => {
       const { resizeHandles, draggableOpts } = props
-      const defaultNode = getFirstSlotVNode(slots)
+      let defaultNode = getFirstSlotVNode(slots)
 
-      if (defaultNode) {
-        const props = defaultNode.props || (defaultNode.props = {})
-        props.class = ['react-resizable', props.class].filter(Boolean).join(' ')
+      defaultNode = defaultNode?.type === Text ? h('div', defaultNode.props, [defaultNode]) : defaultNode
 
-        defaultNode.children = [
-          defaultNode.children as VNode[],
+      patchFirstSlotVNode(defaultNode, (node) => {
+        const props = node.props || (node.props = {})
+        props.class = ['vue-resizable', props.class].filter(Boolean).join(' ')
+
+        node.children = [
+          node.children as VNode[],
           resizeHandles.map((handleAxis) => (
             <DraggableCore
               {...draggableOpts}
@@ -161,7 +163,7 @@ export const Resizable = defineComponent({
             </DraggableCore>
           )),
         ]
-      }
+      })
 
       return defaultNode
     }

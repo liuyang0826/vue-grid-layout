@@ -7,13 +7,15 @@
   "license": "MIT",
   "dependencies": {
     "@liuyang0826/vue-draggable": "workspace:*",
-    "@liuyang0826/vue-resizable": "workspace:*"
+    "@liuyang0826/vue-resizable": "workspace:*",
+    "@liuyang0826/vue-grid-layout": "workspace:*",
+    "shared": "workspace:*"
   },
   "devDependencies": {
     "@liuyang0826/eslint-config": "^0.0.2",
     "eslint": "^8.48.0",
     "prettier": "^2.7.1",
     "typescript": "^5.2.2",
-    "vue": "^3.3.4"
+    "vue": "^3.2.47"
   }
 }

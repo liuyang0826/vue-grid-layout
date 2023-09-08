@@ -1,7 +1,7 @@
-.react-resizable {
+.vue-resizable {
   position: relative;
 }
-.react-resizable-handle {
+.vue-resizable-handle {
   position: absolute;
   width: 20px;
   height: 20px;
@@ -12,54 +12,54 @@
   background-position: bottom right;
   padding: 0 3px 3px 0;
 }
-.react-resizable-handle-sw {
+.vue-resizable-handle-sw {
   bottom: 0;
   left: 0;
   cursor: sw-resize;
   transform: rotate(90deg);
 }
-.react-resizable-handle-se {
+.vue-resizable-handle-se {
   bottom: 0;
   right: 0;
   cursor: se-resize;
 }
-.react-resizable-handle-nw {
+.vue-resizable-handle-nw {
   top: 0;
   left: 0;
   cursor: nw-resize;
   transform: rotate(180deg);
 }
-.react-resizable-handle-ne {
+.vue-resizable-handle-ne {
   top: 0;
   right: 0;
   cursor: ne-resize;
   transform: rotate(270deg);
 }
-.react-resizable-handle-w,
-.react-resizable-handle-e {
+.vue-resizable-handle-w,
+.vue-resizable-handle-e {
   top: 50%;
   margin-top: -10px;
   cursor: ew-resize;
 }
-.react-resizable-handle-w {
+.vue-resizable-handle-w {
   left: 0;
   transform: rotate(135deg);
 }
-.react-resizable-handle-e {
+.vue-resizable-handle-e {
   right: 0;
   transform: rotate(315deg);
 }
-.react-resizable-handle-n,
-.react-resizable-handle-s {
+.vue-resizable-handle-n,
+.vue-resizable-handle-s {
   left: 50%;
   margin-left: -10px;
   cursor: ns-resize;
 }
-.react-resizable-handle-n {
+.vue-resizable-handle-n {
   top: 0;
   transform: rotate(225deg);
 }
-.react-resizable-handle-s {
+.vue-resizable-handle-s {
   bottom: 0;
   transform: rotate(45deg);
 }
@@ -71,6 +71,124 @@
   text-align: center;
   padding: 10px;
   box-sizing: border-box;
-  margin-bottom: 10px;
   overflow: hidden;
+}
+
+.vue-grid-layout {
+  position: relative;
+  transition: height 200ms ease;
+}
+.vue-grid-item {
+  transition: all 200ms ease;
+  transition-property: left, top;
+}
+.vue-grid-item img {
+  pointer-events: none;
+  user-select: none;  
+}
+.vue-grid-item.cssTransforms {
+  transition-property: transform;
+}
+.vue-grid-item.resizing {
+  z-index: 1;
+  will-change: width, height;
+}
+
+.vue-grid-item.vue-draggable-dragging {
+  transition: none;
+  z-index: 3;
+  will-change: transform;
+}
+
+.vue-grid-item.dropping {
+  visibility: hidden;
+}
+
+.vue-grid-item.vue-grid-placeholder {
+  background: red;
+  opacity: 0.2;
+  transition-duration: 100ms;
+  z-index: 2;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+.vue-grid-item > .vue-resizable-handle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+}
+
+.vue-grid-item > .vue-resizable-handle::after {
+  content: "";
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 5px;
+  height: 5px;
+  border-right: 2px solid rgba(0, 0, 0, 0.4);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.4);
+}
+
+.vue-resizable-hide > .vue-resizable-handle {
+  display: none;
+}
+
+.vue-grid-item > .vue-resizable-handle.vue-resizable-handle-sw {
+  bottom: 0;
+  left: 0;
+  cursor: sw-resize;
+  transform: rotate(90deg);
+}
+.vue-grid-item > .vue-resizable-handle.vue-resizable-handle-se {
+  bottom: 0;
+  right: 0;
+  cursor: se-resize;
+}
+.vue-grid-item > .vue-resizable-handle.vue-resizable-handle-nw {
+  top: 0;
+  left: 0;
+  cursor: nw-resize;
+  transform: rotate(180deg);
+}
+.vue-grid-item > .vue-resizable-handle.vue-resizable-handle-ne {
+  top: 0;
+  right: 0;
+  cursor: ne-resize;
+  transform: rotate(270deg);
+}
+.vue-grid-item > .vue-resizable-handle.vue-resizable-handle-w,
+.vue-grid-item > .vue-resizable-handle.vue-resizable-handle-e {
+  top: 50%;
+  margin-top: -10px;
+  cursor: ew-resize;
+}
+.vue-grid-item > .vue-resizable-handle.vue-resizable-handle-w {
+  left: 0;
+  transform: rotate(135deg);
+}
+.vue-grid-item > .vue-resizable-handle.vue-resizable-handle-e {
+  right: 0;
+  transform: rotate(315deg);
+}
+.vue-grid-item > .vue-resizable-handle.vue-resizable-handle-n,
+.vue-grid-item > .vue-resizable-handle.vue-resizable-handle-s {
+  left: 50%;
+  margin-left: -10px;
+  cursor: ns-resize;
+}
+.vue-grid-item > .vue-resizable-handle.vue-resizable-handle-n {
+  top: 0;
+  transform: rotate(225deg);
+}
+.vue-grid-item > .vue-resizable-handle.vue-resizable-handle-s {
+  bottom: 0;
+  transform: rotate(45deg);
+}
+
+* {
+  margin: 0;padding: 0;
 }

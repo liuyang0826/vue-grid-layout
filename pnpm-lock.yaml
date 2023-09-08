@@ -7,9 +7,15 @@ importers:
       '@liuyang0826/vue-draggable':
         specifier: workspace:*
         version: link:packages/vue-draggable
+      '@liuyang0826/vue-grid-layout':
+        specifier: workspace:*
+        version: link:packages/vue-grid-layout
       '@liuyang0826/vue-resizable':
         specifier: workspace:*
         version: link:packages/vue-resizable
+      shared:
+        specifier: workspace:*
+        version: link:packages/shared
     devDependencies:
       '@liuyang0826/eslint-config':
         specifier: ^0.0.2
@@ -24,10 +30,14 @@ importers:
         specifier: ^5.2.2
         version: 5.2.2
       vue:
-        specifier: ^3.3.4
+        specifier: ^3.2.47
         version: 3.3.4
 
+  packages/shared: {}
+
   packages/vue-draggable: {}
+
+  packages/vue-grid-layout: {}
 
   packages/vue-resizable: {}
 

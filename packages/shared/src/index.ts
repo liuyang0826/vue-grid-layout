@@ -1,4 +1,4 @@
-import { Fragment, Slots, VNode, VNodeChild, createTextVNode } from 'vue'
+import { Fragment, Slot, Slots, VNode, VNodeChild, createTextVNode } from 'vue'
 
 function flatten(vNodes: VNodeChild[], filterCommentNode?: boolean, result: VNode[] = []) {
   vNodes.forEach((vNode) => {
@@ -51,6 +51,24 @@ export function getFirstSlotVNode(slots: Slots, slotName = 'default', props?: un
     console.warn('getFirstSlotVNode', `slot[${slotName}] should have exactly one child`)
 
     return null
+  }
+}
+
+export function patchFirstSlotVNode(defaultNode: VNode | null, cb: (node: VNode) => void) {
+  if (!defaultNode) return
+  const children = defaultNode.children
+
+  if (!children || Array.isArray(children) || typeof children === 'string') {
+    cb(defaultNode)
+  } else {
+    const origin = children.default as Slot
+
+    children.default = () => {
+      const defaultNode = getFirstSlotVNode({ default: origin })
+      patchFirstSlotVNode(defaultNode, cb)
+
+      return [defaultNode]
+    }
   }
 }
 

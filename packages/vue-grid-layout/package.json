@@ -1,0 +1,5 @@
+{
+  "name": "@liuyang0826/vue-grid-layout",
+  "version": "0.0.0",
+  "main": "./src/index.ts"
+}
